@@ -1,5 +1,5 @@
 import pygame
-from coletaveis_teste import criar_lista_coletaveis, criar_objeto_aleatorio
+from jogo.objetos.coletaveis_teste import criar_lista_coletaveis, criar_objeto_aleatorio
 from jogo.objetos.titanic import Navio
 from jogo.contador_coletaveis import Score
 
@@ -36,7 +36,7 @@ class JogoTitanic:
                 self.coletaveis.append(criar_objeto_aleatorio(self.largura))
             
             if obj.verificar_colisao(self.navio.get_rect()):
-                from coletaveis_teste import Coletes, Tesouros, Relogios
+                from jogo.objetos.coletaveis_teste import Coletes, Tesouros, Relogios
                 if isinstance(obj, Coletes):
                     self.contador.atualizar_contador("coletes")
                 elif isinstance(obj, Tesouros):
