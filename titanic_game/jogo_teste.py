@@ -1,26 +1,7 @@
 import pygame
 from coletaveis_teste import criar_lista_coletaveis, criar_objeto_aleatorio
-
-class Navio:
-    def __init__(self, largura_janela, altura_janela):
-        self.largura = 60
-        self.altura = 100
-        self.x = largura_janela // 2 - self.largura // 2
-        self.y = altura_janela - self.altura - 20
-        self.velocidade = 5
-        self.cor = (200, 200, 200)
-    
-    def mover(self, direcao, limite_largura):
-        if direcao == "esquerda" and self.x > 0:
-            self.x -= self.velocidade
-        elif direcao == "direita" and self.x < limite_largura - self.largura:
-            self.x += self.velocidade
-    
-    def desenhar(self, tela):
-        pygame.draw.rect(tela, self.cor, (self.x, self.y, self.largura, self.altura))
-    
-    def get_rect(self):
-        return pygame.Rect(self.x, self.y, self.largura, self.altura)
+from jogo.objetos.titanic import Navio
+from jogo.contador_coletaveis import Score
 
 class JogoTitanic:
     def __init__(self):
@@ -31,6 +12,7 @@ class JogoTitanic:
         pygame.display.set_caption("Titanic Game")
         self.navio = Navio(self.largura, self.altura)
         self.coletaveis = criar_lista_coletaveis(self.largura, 10)
+        self.contador = Score()
         self.clock = pygame.time.Clock()
         self.rodando = True
 
@@ -54,6 +36,14 @@ class JogoTitanic:
                 self.coletaveis.append(criar_objeto_aleatorio(self.largura))
             
             if obj.verificar_colisao(self.navio.get_rect()):
+                from coletaveis_teste import Coletes, Tesouros, Relogios
+                if isinstance(obj, Coletes):
+                    self.contador.atualizar_contador("coletes")
+                elif isinstance(obj, Tesouros):
+                    self.contador.atualizar_contador("tesouros")
+                elif isinstance(obj, Relogios):
+                    self.contador.atualizar_contador("relogios")
+
                 self.coletaveis.remove(obj)
                 self.coletaveis.append(criar_objeto_aleatorio(self.largura))
 
@@ -64,6 +54,7 @@ class JogoTitanic:
             obj.desenhar(self.janela)
         
         self.navio.desenhar(self.janela)
+        self.contador.desenhar(self.janela)
         pygame.display.flip()
 
     def executar(self):
@@ -73,6 +64,7 @@ class JogoTitanic:
             self.atualizar()
             self.renderizar()
         
+        self.contador.liberar_memoria()
         pygame.quit()
 
 if __name__ == "__main__":

@@ -24,11 +24,21 @@ class Coletaveis:
             pygame.draw.rect(tela, self.cor, (self.posicao_x, self.posicao_y, self.largura, self.altura)) # Desenha um retângulo representando o objeto
     
     # Função para verificar a colisão do objeto com o navio
-    def verificar_colisao(self, area_jogador):
+    def verificar_colisao(self, area_jogador, contador = None):
         if not self.coletado:
             area_objeto = pygame.Rect(self.posicao_x, self.posicao_y, self.largura, self.altura) # Cria um retângulo que representa a área do objeto
             if area_objeto.colliderect(area_jogador): # Verifica se há sobreposição com a área do jogador
                 self.coletado = True
+    
+                if contador:
+                # Determina o tipo de objeto baseado na classe
+                    if isinstance(self, Coletes):
+                        contador.atualizar_contador("coletes")
+                    elif isinstance(self, Tesouros):
+                        contador.atualizar_contador("tesouros")
+                    elif isinstance(self, Relogios):
+                        contador.atualizar_contador("relogios")
+
                 return True
         return False
 
