@@ -1,5 +1,6 @@
 import pygame
 from jogo.objetos.coletaveis_teste import criar_lista_coletaveis, criar_objeto_aleatorio
+from jogo.objetos.obstaculos import criar_lista_obstaculos, criar_obstaculo_aleatorio
 from jogo.objetos.titanic import Navio
 from jogo.contador_coletaveis import Score
 
@@ -12,10 +13,11 @@ class JogoTitanic:
         pygame.display.set_caption("Titanic Game")
         self.navio = Navio(self.largura, self.altura)
         self.coletaveis = criar_lista_coletaveis(self.largura, 10)
+        self.obstaculos = criar_lista_obstaculos (self.largura, 5) 
         self.contador = Score()
         self.clock = pygame.time.Clock()
         self.rodando = True
-
+        
     def processar_eventos(self):
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT:
@@ -46,13 +48,29 @@ class JogoTitanic:
 
                 self.coletaveis.remove(obj)
                 self.coletaveis.append(criar_objeto_aleatorio(self.largura))
+        
+        # implementação do obstáculo 
+        for obstaculo in self.obstaculos[:]:
+            obstaculo.mover()
+           
+            if obstaculo.posicao_y > self.altura:
+                self.obstaculos.remove(obstaculo)
+                novo_obstaculo = criar_obstaculo_aleatorio(self.largura)
+                self.obstaculos.append(novo_obstaculo)
 
+            if obstaculo.verificar_colisao(self.navio.get_rect()):
+                self.obstaculos.remove(obstaculo)
+                self.obstaculos.append(criar_obstaculo_aleatorio(self.largura))
+      
     def renderizar(self):
         self.janela.fill((0, 0, 100))
         
         for obj in self.coletaveis:
             obj.desenhar(self.janela)
-        
+
+        for obstaculo in self.obstaculos:
+            obstaculo.desenhar(self.janela)
+
         self.navio.desenhar(self.janela)
         self.contador.desenhar(self.janela)
         pygame.display.flip()
