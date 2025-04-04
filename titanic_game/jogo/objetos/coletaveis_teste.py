@@ -65,17 +65,27 @@ class Relogios(Coletaveis):
             pygame.draw.line(tela, (255, 255, 255), (centro_x, centro_y), (centro_x, centro_y - self.raio//2), 2)
             pygame.draw.line(tela, (255, 255, 255), (centro_x, centro_y), (centro_x + self.raio//2, centro_y), 2)
 
+# Variável global para controlar a velocidade acumulada
+velocidade_acumulada = 1
+
 def criar_objeto_aleatorio(largura_tela):
+    global velocidade_acumulada  # Acessa a variável global
+    
     posicao_x = random.randint(20, largura_tela - 40)
     posicao_y = random.randint(-500, -30)
-    velocidade = random.randint(2, 5)
     
-    tipo = random.choice(["coletes", "tesouros", "relogios"])
+    # Configuração de velocidade progressiva
+    velocidade = random.randint(2, 3) * velocidade_acumulada
+    
+    # Lógica de pesos alterada para priorizar tesouros
+    tipos = ["coletes", "tesouros", "relogios"]
+    tipo = random.choices(tipos, weights=[1, 3, 1], k=1)[0]
     
     if tipo == "coletes":
         objeto = Coletes()
     elif tipo == "tesouros":
         objeto = Tesouros()
+        velocidade_acumulada *= 1.02  # Aumenta 2% na velocidade a cada tesouro
     else:
         objeto = Relogios()
     
@@ -83,4 +93,5 @@ def criar_objeto_aleatorio(largura_tela):
     return objeto
 
 def criar_lista_coletaveis(largura_tela, quantidade):
-    return [criar_objeto_aleatorio(largura_tela) for _ in range(quantidade)]
+    nova_quantidade = max(1, quantidade // 3)
+    return [criar_objeto_aleatorio(largura_tela) for _ in range(nova_quantidade)]
