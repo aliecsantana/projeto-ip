@@ -1,115 +1,89 @@
 import pygame
-import random # Importa a biblioteca random para gerar números aleatórios
+import random
 
-# Classe base para todos os objetos coletáveis no jogo
+pygame.init()
+
+largura_tela = 800
+altura_tela = 600
+tela = pygame.display.set_mode((largura_tela, altura_tela))
+pygame.display.set_caption("Jogo dos Coletáveis")
+
+tamanho_imagem = (45, 45)
+
+img_colete = pygame.transform.scale(pygame.image.load("titanic_game/jogo/imagens/colete.png").convert_alpha(),tamanho_imagem)
+img_tesouro = pygame.transform.scale(pygame.image.load("titanic_game/jogo/imagens/tesouro.png").convert_alpha(),tamanho_imagem)
+img_relogio = pygame.transform.scale(pygame.image.load("titanic_game/jogo/imagens/relogio.png").convert_alpha(),tamanho_imagem)
+
 class Coletaveis:
-    # Função para configurar as propriedades básicas do objeto coletável
-    def configurar(self, posicao_x, posicao_y, velocidade):
-        self.posicao_x = posicao_x # Posição horizontal do objeto
-        self.posicao_y = posicao_y # Posição vertical do objeto
-        self.velocidade = velocidade # Velocidade de queda do objeto
-        self.coletado = False # Indica se o objeto foi coletado pelo jogador
-        self.largura = 30 # Largura do objeto
-        self.altura = 30 # Altura do objeto
-        self.cor = (255, 255, 255) # Cor do objeto (branco)
-    
-    # Função para mover o objeto verticalmente na tela
+    def configurar(self, posicao_x, posicao_y, velocidade, imagem=None):
+        self.posicao_x = posicao_x
+        self.posicao_y = posicao_y
+        self.velocidade = velocidade
+        self.coletado = False
+        self.imagem = imagem
+        self.largura = 45
+        self.altura = 45
+        self.cor = (255, 255, 255)
+
     def mover(self):
         if not self.coletado:
-            self.posicao_y += self.velocidade # Move o objeto para baixo de acordo com sua velocidade
-    
-    # Função para desenhar o objeto na tela
+            self.posicao_y += self.velocidade
+
     def desenhar(self, tela):
         if not self.coletado:
-            pygame.draw.rect(tela, self.cor, (self.posicao_x, self.posicao_y, self.largura, self.altura)) # Desenha um retângulo representando o objeto
-    
-    # Função para verificar a colisão do objeto com o navio
-    def verificar_colisao(self, area_jogador, contador = None):
-        if not self.coletado:
-            area_objeto = pygame.Rect(self.posicao_x, self.posicao_y, self.largura, self.altura) # Cria um retângulo que representa a área do objeto
-            if area_objeto.colliderect(area_jogador): # Verifica se há sobreposição com a área do jogador
-                self.coletado = True
-    
-                if contador:
-                # Determina o tipo de objeto baseado na classe
-                    if isinstance(self, Coletes):
-                        contador.atualizar_contador("coletes")
-                    elif isinstance(self, Tesouros):
-                        contador.atualizar_contador("tesouros")
-                    elif isinstance(self, Relogios):
-                        contador.atualizar_contador("relogios")
+            if self.imagem:
+                tela.blit(self.imagem, (self.posicao_x, self.posicao_y))
+            else:
+                pygame.draw.rect(tela, self.cor, (self.posicao_x, self.posicao_y, self.largura, self.altura))
 
+    def verificar_colisao(self, area_jogador):
+        if not self.coletado:
+            area_objeto = pygame.Rect(self.posicao_x, self.posicao_y, self.largura, self.altura)
+            if area_objeto.colliderect(area_jogador):
+                self.coletado = True
                 return True
         return False
 
-# Classe que representa os coletes salva-vidas
 class Coletes(Coletaveis):
-    def configurar(self, posicao_x, posicao_y, velocidade):
-        super().configurar(posicao_x, posicao_y, velocidade) # Chama o método "configurar" da classe pai
-        self.cor = (255, 255, 0) # Define a cor específica para coletes (amarelo)
-    
-    # Função para desenhar o colete na tela
-    def desenhar(self, tela):
-        if not self.coletado:
-            pygame.draw.rect(tela, self.cor, (self.posicao_x, self.posicao_y, self.largura, self.altura)) # Desenha o retângulo base do colete
-            # Desenha um triângulo preto no centro do colete
-            pygame.draw.polygon(tela, (0, 0, 0), [
-                (self.posicao_x + 5, self.posicao_y + 5), # Ponto superior esquerdo
-                (self.posicao_x + self.largura - 5, self.posicao_y + 5), # Ponto superior direito
-                (self.posicao_x + self.largura//2, self.posicao_y + self.altura - 5) # Ponto inferior central
-            ])
+    def configurar(self, posicao_x, posicao_y, velocidade, imagem):
+        super().configurar(posicao_x, posicao_y, velocidade, imagem)
+        self.largura, self.altura = imagem.get_size()
 
-# Classe que representa os tesouros
 class Tesouros(Coletaveis):
-    def configurar(self, posicao_x, posicao_y, velocidade):
-        # Chama o método "configurar" da classe pai
-        super().configurar(posicao_x, posicao_y, velocidade)
-        self.cor = (212, 175, 55) # Define a cor específica para tesouros (dourado)
-        self.largura = 35 # Largura específica para tesouros
-        self.altura = 25 # Altura específica para tesouros
-    
-    # Função para desenhar o tesouro na tela
-    def desenhar(self, tela):
-        if not self.coletado:
-            pygame.draw.rect(tela, self.cor, (self.posicao_x, self.posicao_y, self.largura, self.altura)) # Desenha o retângulo base do tesouro
-            pygame.draw.rect(tela, (139, 69, 19), (self.posicao_x + 5, self.posicao_y, self.largura - 10, 5)) # Desenha uma faixa marrom no topo do tesouro
+    def configurar(self, posicao_x, posicao_y, velocidade, imagem):
+        super().configurar(posicao_x, posicao_y, velocidade, imagem)
+        self.largura, self.altura = imagem.get_size()
 
-# Classe que representa os relógios
 class Relogios(Coletaveis):
-    def configurar(self, posicao_x, posicao_y, velocidade):
-        super().configurar(posicao_x, posicao_y, velocidade) # Chama o método "configurar" da classe pai
-        self.cor = (0, 0, 255) # Define a cor específica para relógios (azul)
-        self.raio = 15 # Raio do círculo que representa o relógio
-    
-    # Função para desenhar o relógio na tela
-    def desenhar(self, tela):
-        if not self.coletado:
-            # Calcula o centro do relógio
-            centro_x = self.posicao_x + self.raio
-            centro_y = self.posicao_y + self.raio
-            pygame.draw.circle(tela, self.cor, (centro_x, centro_y), self.raio) # Desenha o círculo base do relógio
-            pygame.draw.line(tela, (255, 255, 255), (centro_x, centro_y), (centro_x, centro_y - self.raio//2), 2) # Desenha o ponteiro dos minutos (linha vertical)
-            pygame.draw.line(tela, (255, 255, 255), (centro_x, centro_y), (centro_x + self.raio//2, centro_y), 2) # Desenha o ponteiro das horas (linha horizontal)
+    def configurar(self, posicao_x, posicao_y, velocidade, imagem):
+        super().configurar(posicao_x, posicao_y, velocidade, imagem)
+        self.largura, self.altura = imagem.get_size()
 
-# Função para criar um objeto coletável aleatório
+velocidade_acumulada = 1
+
 def criar_objeto_aleatorio(largura_tela):
-    posicao_x = random.randint(20, largura_tela - 40) # Gera uma posição x aleatória dentro dos limites da tela
-    posicao_y = random.randint(-500, -30) # Gera uma posição y aleatória acima da tela
-    velocidade = random.randint(3, 7) # Gera uma velocidade aleatória entre 3 e 7
-    
-    # Escolhe aleatoriamente um tipo de objeto entre as opções
-    tipo = random.choice(["coletes", "tesouros", "relogios"])
-    
+    global velocidade_acumulada
+
+    posicao_x = random.randint(20, largura_tela - 60)
+    posicao_y = random.randint(-500, -30)
+    velocidade = random.randint(2, 3) * velocidade_acumulada
+
+    tipos = ["coletes", "tesouros", "relogios"]
+    tipo = random.choices(tipos, weights=[1, 3, 1], k=1)[0]
+
     if tipo == "coletes":
         objeto = Coletes()
+        objeto.configurar(posicao_x, posicao_y, velocidade, img_colete)
     elif tipo == "tesouros":
         objeto = Tesouros()
+        objeto.configurar(posicao_x, posicao_y, velocidade, img_tesouro)
+        velocidade_acumulada *= 1.02
     else:
         objeto = Relogios()
-    
-    objeto.configurar(posicao_x, posicao_y, velocidade) # Configura o objeto com as propriedades geradas
+        objeto.configurar(posicao_x, posicao_y, velocidade, img_relogio)
+
     return objeto
 
-# Função para criar uma lista de objetos coletáveis
 def criar_lista_coletaveis(largura_tela, quantidade):
-    return [criar_objeto_aleatorio(largura_tela) for i in range(quantidade)]
+    nova_quantidade = max(1, quantidade // 3)
+    return [criar_objeto_aleatorio(largura_tela) for i in range(nova_quantidade)]
