@@ -8,18 +8,24 @@ from jogo.contador_coletaveis import Score
 class JogoTitanic:
     def __init__(self):
         pygame.init()
-        # Configurações de tela centralizadas aqui
         self.largura = 500
         self.altura = 700
         self.janela = pygame.display.set_mode((self.largura, self.altura))
         pygame.display.set_caption("Titanic Game")
         
-        # Configuração do ícone da janela
         try:
-            icon = pygame.image.load("imagens/titanic.png")
+            icon = pygame.image.load("imagens/titanic_oceano.png") 
             pygame.display.set_icon(icon)
         except:
             print("Ícone não encontrado, usando padrão do pygame")
+        
+        try:
+            self.fundo = pygame.image.load("titanic_game/jogo/imagens/oceano.png").convert()
+            self.fundo = pygame.transform.scale(self.fundo, (self.largura, self.altura))
+        except Exception as e:
+            print(f"Erro ao carregar imagem de fundo: {e}")
+            print("Usando cor sólida como fallback")
+            self.fundo = None
         
         self.navio = Navio(self.largura, self.altura)
         self.coletaveis = criar_lista_coletaveis(self.largura, 10)
@@ -59,7 +65,6 @@ class JogoTitanic:
                 self.coletaveis.remove(obj)
                 self.coletaveis.append(criar_objeto_aleatorio(self.largura))
         
-        # implementação do obstáculo 
         for obstaculo in self.obstaculos[:]:
             obstaculo.mover()
            
@@ -73,8 +78,13 @@ class JogoTitanic:
                 self.obstaculos.append(criar_obstaculo_aleatorio(self.largura))
       
     def renderizar(self):
-        self.janela.fill((0, 0, 100))
+        # Desenha o fundo (imagem ou cor sólida)
+        if self.fundo:
+            self.janela.blit(self.fundo, (0, 0))
+        else:
+            self.janela.fill((0, 0, 100))  # Cor de fallback
         
+        # Desenha os outros elementos
         for obj in self.coletaveis:
             obj.desenhar(self.janela)
 
