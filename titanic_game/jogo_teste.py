@@ -4,16 +4,26 @@ from jogo.objetos.obstaculos import criar_lista_obstaculos, criar_obstaculo_alea
 from jogo.objetos.titanic import Navio
 from jogo.contador_coletaveis import Score
 
+
 class JogoTitanic:
     def __init__(self):
         pygame.init()
+        # Configurações de tela centralizadas aqui
         self.largura = 500
         self.altura = 700
         self.janela = pygame.display.set_mode((self.largura, self.altura))
         pygame.display.set_caption("Titanic Game")
+        
+        # Configuração do ícone da janela
+        try:
+            icon = pygame.image.load("imagens/titanic.png")
+            pygame.display.set_icon(icon)
+        except:
+            print("Ícone não encontrado, usando padrão do pygame")
+        
         self.navio = Navio(self.largura, self.altura)
         self.coletaveis = criar_lista_coletaveis(self.largura, 10)
-        self.obstaculos = criar_lista_obstaculos (self.largura, 5) 
+        self.obstaculos = criar_lista_obstaculos(self.largura, 5) 
         self.contador = Score()
         self.clock = pygame.time.Clock()
         self.rodando = True

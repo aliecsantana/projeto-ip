@@ -1,17 +1,22 @@
 import pygame
 import random
 
-pygame.init()
-
-largura_tela = 800
-altura_tela = 600
-tela = pygame.display.set_mode((largura_tela, altura_tela))
-
+# Tamanho padrão para as imagens
 tamanho_imagem = (45, 45)
 
-img_colete = pygame.transform.scale(pygame.image.load("titanic_game/jogo/imagens/colete.png").convert_alpha(),tamanho_imagem)
-img_tesouro = pygame.transform.scale(pygame.image.load("titanic_game/jogo/imagens/tesouro.png").convert_alpha(),tamanho_imagem)
-img_relogio = pygame.transform.scale(pygame.image.load("titanic_game/jogo/imagens/relogio.png").convert_alpha(),tamanho_imagem)
+# Carregar imagens (agora sem depender da inicialização do pygame)
+img_colete = None
+img_tesouro = None
+img_relogio = None
+
+def carregar_imagens():
+    global img_colete, img_tesouro, img_relogio
+    try:
+        img_colete = pygame.transform.scale(pygame.image.load("titanic_game/jogo/imagens/colete.png").convert_alpha(), tamanho_imagem)
+        img_tesouro = pygame.transform.scale(pygame.image.load("titanic_game/jogo/imagens/tesouro.png").convert_alpha(), tamanho_imagem)
+        img_relogio = pygame.transform.scale(pygame.image.load("titanic_game/jogo/imagens/relogio.png").convert_alpha(), tamanho_imagem)
+    except:
+        print("Erro ao carregar imagens dos coletáveis")
 
 class Coletaveis:
     def configurar(self, posicao_x, posicao_y, velocidade, imagem=None):
@@ -63,6 +68,10 @@ velocidade_acumulada = 1
 def criar_objeto_aleatorio(largura_tela):
     global velocidade_acumulada
 
+    # Garante que as imagens estão carregadas
+    if img_colete is None:
+        carregar_imagens()
+
     posicao_x = random.randint(20, largura_tela - 60)
     posicao_y = random.randint(-500, -30)
     velocidade = random.randint(2, 3) * velocidade_acumulada
@@ -85,4 +94,4 @@ def criar_objeto_aleatorio(largura_tela):
 
 def criar_lista_coletaveis(largura_tela, quantidade):
     nova_quantidade = max(1, quantidade // 3)
-    return [criar_objeto_aleatorio(largura_tela) for i in range(nova_quantidade)]
+    return [criar_objeto_aleatorio(largura_tela) for _ in range(nova_quantidade)]
