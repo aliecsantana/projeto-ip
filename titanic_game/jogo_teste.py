@@ -3,6 +3,7 @@ from jogo.objetos.coletaveis import criar_lista_coletaveis, criar_objeto_aleator
 from jogo.objetos.obstaculos import criar_lista_obstaculos, criar_obstaculo_aleatorio
 from jogo.objetos.titanic import Navio
 from jogo.contador_coletaveis import Score
+from jogo.logica_jogo import LogicaJogo
 
 
 class JogoTitanic:
@@ -31,8 +32,11 @@ class JogoTitanic:
         self.coletaveis = criar_lista_coletaveis(self.largura, 10)
         self.obstaculos = criar_lista_obstaculos(self.largura, 5) 
         self.contador = Score()
+        self.logica_jogo = LogicaJogo()
+        self.logica_jogo.definir_contador(self.contador)
         self.clock = pygame.time.Clock()
         self.rodando = True
+        self.estado_jogo = "jogando"  # Estados: jogando, game_over, game_won
         
     def processar_eventos(self):
         for evento in pygame.event.get():
@@ -40,6 +44,9 @@ class JogoTitanic:
                 self.rodando = False
 
     def atualizar(self):
+        if self.estado_jogo != "jogando":
+            return
+            
         teclas = pygame.key.get_pressed()
         if teclas[pygame.K_LEFT]:
             self.navio.mover("esquerda", self.largura)
@@ -61,6 +68,7 @@ class JogoTitanic:
                     self.contador.atualizar_contador("tesouros")
                 elif isinstance(obj, Relogios):
                     self.contador.atualizar_contador("relogios")
+                    self.logica_jogo.aumentar_tempo(10)  # Aumenta o tempo ao coletar relógio
 
                 self.coletaveis.remove(obj)
                 self.coletaveis.append(criar_objeto_aleatorio(self.largura))
@@ -74,8 +82,14 @@ class JogoTitanic:
                 self.obstaculos.append(novo_obstaculo)
 
             if obstaculo.verificar_colisao(self.navio.get_rect()):
+                self.logica_jogo.reduzir_tempo(5)  # Reduz o tempo ao bater em iceberg
                 self.obstaculos.remove(obstaculo)
                 self.obstaculos.append(criar_obstaculo_aleatorio(self.largura))
+        
+        # Verifica o estado do jogo
+        resultado = self.logica_jogo.atualizar()
+        if resultado != "continuar":
+            self.estado_jogo = resultado
       
     def renderizar(self):
         # Desenha o fundo (imagem ou cor sólida)
@@ -93,7 +107,22 @@ class JogoTitanic:
 
         self.navio.desenhar(self.janela)
         self.contador.desenhar(self.janela)
+        self.logica_jogo.desenhar_timer(self.janela)
+        
+        # Desenha mensagens de fim de jogo
+        if self.estado_jogo == "game_over":
+            self.desenhar_mensagem("GAME OVER", (255, 0, 0))
+        elif self.estado_jogo == "game_won":
+            self.desenhar_mensagem("VOCÊ VENCEU!", (0, 255, 0))
+            
         pygame.display.flip()
+    
+    def desenhar_mensagem(self, texto, cor):
+        fonte = pygame.font.Font(None, 72)
+        superficie = fonte.render(texto, True, cor)
+        pos_x = self.largura // 2 - superficie.get_width() // 2
+        pos_y = self.altura // 2 - superficie.get_height() // 2
+        self.janela.blit(superficie, (pos_x, pos_y))
 
     def executar(self):
         while self.rodando:
@@ -101,6 +130,10 @@ class JogoTitanic:
             self.processar_eventos()
             self.atualizar()
             self.renderizar()
+            
+            if self.estado_jogo != "jogando":
+                pygame.time.delay(3000)
+                self.rodando = False
         
         self.contador.liberar_memoria()
         pygame.quit()
