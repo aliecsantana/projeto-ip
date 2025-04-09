@@ -30,4 +30,5 @@ def criar_obstaculo_aleatorio(largura_tela):
     return Obstaculo(posicao_x, posicao_y, velocidade)
 
 def criar_lista_obstaculos(largura_tela, quantidade):
-    return [criar_obstaculo_aleatorio(largura_tela) for i in range(quantidade)]
+    nova_quantidade = max(1, quantidade // 1,5)
+    return [criar_obstaculo_aleatorio(largura_tela) for i in range(nova_quantidade)]

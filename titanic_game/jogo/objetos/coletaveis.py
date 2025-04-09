@@ -93,5 +93,5 @@ def criar_objeto_aleatorio(largura_tela):
     return objeto
 
 def criar_lista_coletaveis(largura_tela, quantidade):
-    nova_quantidade = max(1, quantidade // 3)
+    nova_quantidade = max(1, quantidade // 4)
     return [criar_objeto_aleatorio(largura_tela) for i in range(nova_quantidade)]
