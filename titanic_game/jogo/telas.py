@@ -62,7 +62,7 @@ class TelaInicial:
         # Posiciona os botões no centro da tela
         pos_x = largura // 2 - botao_largura // 2
         
-        self.botao_comecar = Botao(pos_x, altura // 2, botao_largura, botao_altura, "Comecar", 
+        self.botao_comecar = Botao(pos_x, altura // 2, botao_largura, botao_altura, "Iniciar", 
                                    cor=(100, 200, 100), cor_hover=(80, 180, 80))
         
         self.botao_sair = Botao(pos_x, altura // 2 + botao_altura + 20, botao_largura, botao_altura, "Sair", 
@@ -89,8 +89,8 @@ class TelaInicial:
         
         # Desenha o texto de controles no canto esquerdo
         linha1 = self.fonte_controles.render("Controles:", True, (255, 255, 255))
-        linha2 = self.fonte_controles.render("Mover-se A, D ou Setas", True, (255, 255, 255))
-        linha3 = self.fonte_controles.render("Pausar SPACE", True, (255, 255, 255))
+        linha2 = self.fonte_controles.render("Mover-se: A, D ou Setas", True, (255, 255, 255))
+        linha3 = self.fonte_controles.render("Pausar: Barra de Espaço", True, (255, 255, 255))
         
         margem = 20  # Margem da borda esquerda
         tela.blit(linha1, (margem, self.altura - 80))

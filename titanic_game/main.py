@@ -13,7 +13,7 @@ class JogoTitanic:
         self.largura = 500
         self.altura = 700
         self.janela = pygame.display.set_mode((self.largura, self.altura))
-        pygame.display.set_caption("Titanic Game")
+        pygame.display.set_caption("TitanCIn")
         
         try:
             icon = pygame.image.load("imagens/titanic_oceano.png") 
