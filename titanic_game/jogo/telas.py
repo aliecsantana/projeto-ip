@@ -59,10 +59,9 @@ class TelaInicial:
         botao_largura = 200
         botao_altura = 50
         
-        # Posiciona os botões na parte inferior da tela (área de cor sólida)
+        # Posiciona os botões na parte inferior da tela
         pos_x = largura // 2 - botao_largura // 2
         
-        # Posicionando os botões mais acima para não ficarem muito baixos
         self.botao_comecar = Botao(pos_x, altura - 220, botao_largura, botao_altura, "Iniciar", 
                                    cor=(100, 200, 100), cor_hover=(80, 180, 80))
         
@@ -148,7 +147,7 @@ class TelaFimJogo:
         texto_surface = self.fonte_resultado.render(texto, True, cor)
         tela.blit(texto_surface, (self.largura // 2 - texto_surface.get_width() // 2, self.altura // 3))
         
-        # Adiciona informação sobre coletes coletados
+        # Informação sobre coletes coletados
         if self.contador_score:
             coletes_coletados = self.contador_score.obter_contagem("coletes")
             if self.resultado == "game_over":
