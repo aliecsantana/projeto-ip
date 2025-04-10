@@ -41,10 +41,10 @@ O projeto segue o paradigma de Orientação a Objetos e está estruturado da seg
 
 ## 💡 Conceitos Utilizados
 
-- **Orientação a Objetos**
-- **Estruturas condicionais**  
-- **Laços de repetição**
-- **Funções**  
+- **Orientação a Objetos**: Para criar cada elemento do jogo a partir de classes
+- **Estruturas condicionais**: Utilizadas na hora de fazer a lógica do jogo, determinando o que fazer em determinadas situações
+- **Laços de repetição**: Para criar a quantidade de obstáculos e coletáveis que aparecem na tela
+- **Funções**: Para criar movimentações, os objetos coletáveis e os obstáculos
 
 ## 💥 Desafios e Lições Aprendidas
 
