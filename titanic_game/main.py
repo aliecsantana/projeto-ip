@@ -16,9 +16,10 @@ class JogoTitanic:
         pygame.display.set_caption("TitanCIn")
         
         try:
-            icon = pygame.image.load("imagens/titanic_oceano.png") 
+            icon = pygame.image.load("titanic_game/jogo/imagens/icon.png") 
             pygame.display.set_icon(icon)
-        except:
+        except Exception as e:
+            print(f"Erro ao carregar icone: {e}")
             print("Icone nao encontrado, usando padrao do pygame")
         
         self.carregar_recursos()
@@ -35,6 +36,7 @@ class JogoTitanic:
         
         self.clock = pygame.time.Clock()
         self.rodando = True
+
     
     def carregar_recursos(self):
         try:
@@ -63,6 +65,11 @@ class JogoTitanic:
                 self.rodando = False
                 return
         
+            # ESC durante o jogo volta para o menu inicial
+            if evento.type == pygame.KEYDOWN and evento.key == pygame.K_ESCAPE and self.estado_jogo in ["jogando", "pausado"]:
+                self.estado_jogo = "menu"
+                return
+
         if self.estado_jogo == "menu":
             pos_mouse = pygame.mouse.get_pos()
             self.tela_inicial.botao_comecar.verificar_hover(pos_mouse)
@@ -165,7 +172,7 @@ class JogoTitanic:
         resultado = self.logica_jogo.atualizar()
         if resultado != "continuar":
             self.estado_jogo = resultado
-            self.tela_fim_jogo = TelaFimJogo(self.largura, self.altura, resultado)
+            self.tela_fim_jogo = TelaFimJogo(self.largura, self.altura, resultado, self.contador)
       
     def renderizar(self):
         if self.estado_jogo == "menu":

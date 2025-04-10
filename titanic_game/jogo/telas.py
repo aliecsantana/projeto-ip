@@ -59,13 +59,14 @@ class TelaInicial:
         botao_largura = 200
         botao_altura = 50
         
-        # Posiciona os botões no centro da tela
+        # Posiciona os botões na parte inferior da tela (área de cor sólida)
         pos_x = largura // 2 - botao_largura // 2
         
-        self.botao_comecar = Botao(pos_x, altura // 2, botao_largura, botao_altura, "Iniciar", 
+        # Posicionando os botões mais acima para não ficarem muito baixos
+        self.botao_comecar = Botao(pos_x, altura - 220, botao_largura, botao_altura, "Iniciar", 
                                    cor=(100, 200, 100), cor_hover=(80, 180, 80))
         
-        self.botao_sair = Botao(pos_x, altura // 2 + botao_altura + 20, botao_largura, botao_altura, "Sair", 
+        self.botao_sair = Botao(pos_x, altura - 160, botao_largura, botao_altura, "Sair", 
                                cor=(200, 100, 100), cor_hover=(180, 80, 80))
         
         # Fonte para o texto de controles
@@ -100,10 +101,11 @@ class TelaInicial:
         pygame.display.flip()
 
 class TelaFimJogo:
-    def __init__(self, largura, altura, resultado):
+    def __init__(self, largura, altura, resultado, contador_score=None):
         self.largura = largura
         self.altura = altura
         self.resultado = resultado
+        self.contador_score = contador_score
         
         # Cria os botões
         botao_largura = 200
@@ -119,7 +121,8 @@ class TelaFimJogo:
                                          "Jogar Novamente", cor=(100, 200, 100), cor_hover=(80, 180, 80))
         
         # Fonte para o texto de resultado
-        self.fonte_resultado = pygame.font.SysFont('Verdana', 28)
+        self.fonte_resultado = pygame.font.SysFont('Verdana', 28, bold=True)
+        self.fonte_detalhes = pygame.font.SysFont('Verdana', 20)
     
     def atualizar(self):
         pos_mouse = pygame.mouse.get_pos()
@@ -132,14 +135,26 @@ class TelaFimJogo:
         
         # Desenha o texto de resultado
         if self.resultado == "game_won":
-            texto = "Voce venceu!!!"
+            texto_parabens = "Parabéns!"
+            texto = "Você venceu!!!"
             cor = (0, 255, 0)
+            
+            texto_parabens_surface = self.fonte_resultado.render(texto_parabens, True, cor)
+            tela.blit(texto_parabens_surface, (self.largura // 2 - texto_parabens_surface.get_width() // 2, self.altura // 3 - 40))
         else:
             texto = "Parece que o tempo acabou..."
             cor = (255, 0, 0)
         
         texto_surface = self.fonte_resultado.render(texto, True, cor)
         tela.blit(texto_surface, (self.largura // 2 - texto_surface.get_width() // 2, self.altura // 3))
+        
+        # Adiciona informação sobre coletes coletados
+        if self.contador_score:
+            coletes_coletados = self.contador_score.obter_contagem("coletes")
+            if self.resultado == "game_over":
+                texto_coletes = f"Você coletou {coletes_coletados} de 10 coletes necessários."
+                texto_coletes_surface = self.fonte_detalhes.render(texto_coletes, True, (255, 255, 255))
+                tela.blit(texto_coletes_surface, (self.largura // 2 - texto_coletes_surface.get_width() // 2, self.altura // 3 + 40))
         
         # Desenha os botões
         self.botao_menu.desenhar(tela)
@@ -187,7 +202,7 @@ class TelaPausa:
         tela.blit(superficie, (0, self.altura // 2 - 50))
         
         # Desenha o texto
-        texto = "Pausado"
+        texto = "PAUSADO"
         texto_surface = self.fonte.render(texto, True, (255, 255, 255))
         tela.blit(texto_surface, (self.largura // 2 - texto_surface.get_width() // 2, 
                                  self.altura // 2 - texto_surface.get_height() // 2))
