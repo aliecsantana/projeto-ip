@@ -7,8 +7,8 @@ Jogo desenvolvido em Python com o uso da biblioteca PyGame, inspirado no navio T
 ## 👥 Equipe e Divisão de Trabalho
 
 - **Alice Santana `<ass11>`**: Criação dos objetos coletáveis, imagens e arquitetura do projeto  
-- **Kraus Jatobá `<kjsj>`**: Criação dos obstáculos e sons  
-- **Lucas Teixeira `<lta>`**: Criação dos objetos coletáveis  
+- **Kraus Jatobá `<kjsj>`**: Criação dos obstáculos, sons e criação objeto jogador
+- **Lucas Teixeira `<lta>`**: Criação dos objetos coletáveis, organização das pastas e criação do protótipo  
 - **Marcos Alexandre `<malb>`**: Criação da lógica do jogo, contadores e telas  
 
 ## 🧠 Arquitetura do Projeto
