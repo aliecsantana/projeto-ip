@@ -4,7 +4,7 @@ import random
 # Tamanho padrão para as imagens
 tamanho_imagem = (45, 45)
 
-# Carregar imagens (agora sem depender da inicialização do pygame)
+# Carregar imagens (sem depender da inicialização do pygame)
 img_colete = None
 img_tesouro = None
 img_relogio = None

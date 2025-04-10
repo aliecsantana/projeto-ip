@@ -4,6 +4,7 @@ from jogo.objetos.obstaculos import criar_lista_obstaculos, criar_obstaculo_alea
 from jogo.objetos.titanic import Navio
 from jogo.contador_coletaveis import Score
 from jogo.logica_jogo import LogicaJogo
+from jogo.telas import TelaInicial, TelaFimJogo, TelaObjetivo, TelaPausa
 
 
 class JogoTitanic:
@@ -18,39 +19,113 @@ class JogoTitanic:
             icon = pygame.image.load("imagens/titanic_oceano.png") 
             pygame.display.set_icon(icon)
         except:
-            print("Ícone não encontrado, usando padrão do pygame")
+            print("Icone nao encontrado, usando padrao do pygame")
         
+        self.carregar_recursos()
+        self.inicializar_jogo()
+        
+        # Estado do jogo: "menu", "jogando", "pausado", "game_over", "game_won"
+        self.estado_jogo = "menu"
+        
+        # Inicializa as telas
+        self.tela_inicial = TelaInicial(self.largura, self.altura)
+        self.tela_objetivo = None
+        self.tela_fim_jogo = None
+        self.tela_pausa = TelaPausa(self.largura, self.altura)
+        
+        self.clock = pygame.time.Clock()
+        self.rodando = True
+    
+    def carregar_recursos(self):
         try:
             self.fundo = pygame.image.load("titanic_game/jogo/imagens/oceano.png").convert()
             self.fundo = pygame.transform.scale(self.fundo, (self.largura, self.altura))
         except Exception as e:
             print(f"Erro ao carregar imagem de fundo: {e}")
-            print("Usando cor sólida como fallback")
+            print("Usando cor solida como fallback")
             self.fundo = None
-        
+    
+    def inicializar_jogo(self):
         self.navio = Navio(self.largura, self.altura)
         self.coletaveis = criar_lista_coletaveis(self.largura, 10)
         self.obstaculos = criar_lista_obstaculos(self.largura, 5) 
         self.contador = Score()
         self.logica_jogo = LogicaJogo()
         self.logica_jogo.definir_contador(self.contador)
-        self.clock = pygame.time.Clock()
-        self.rodando = True
-        self.estado_jogo = "jogando"  # Estados: jogando, game_over, game_won
+        self.logica_jogo.resetar_timer()
+        self.tela_objetivo = TelaObjetivo(self.largura, self.altura)
         
     def processar_eventos(self):
-        for evento in pygame.event.get():
+        eventos = pygame.event.get()
+        
+        for evento in eventos:
             if evento.type == pygame.QUIT:
                 self.rodando = False
+                return
+        
+        if self.estado_jogo == "menu":
+            pos_mouse = pygame.mouse.get_pos()
+            self.tela_inicial.botao_comecar.verificar_hover(pos_mouse)
+            self.tela_inicial.botao_sair.verificar_hover(pos_mouse)
+            
+            for evento in eventos:
+                if evento.type == pygame.MOUSEBUTTONDOWN and evento.button == 1:
+                    if self.tela_inicial.botao_comecar.verificar_clique(pos_mouse):
+                        self.estado_jogo = "jogando"
+                        self.inicializar_jogo()
+                        return
+                    if self.tela_inicial.botao_sair.verificar_clique(pos_mouse):
+                        self.rodando = False
+                        return
+            return
+        
+        elif self.estado_jogo in ["game_over", "game_won"]:
+            if self.tela_fim_jogo:
+                pos_mouse = pygame.mouse.get_pos()
+                self.tela_fim_jogo.botao_menu.verificar_hover(pos_mouse)
+                self.tela_fim_jogo.botao_jogar_novamente.verificar_hover(pos_mouse)
+                
+                for evento in eventos:
+                    if evento.type == pygame.MOUSEBUTTONDOWN and evento.button == 1:
+                        if self.tela_fim_jogo.botao_menu.verificar_clique(pos_mouse):
+                            self.estado_jogo = "menu"
+                            return
+                        if self.tela_fim_jogo.botao_jogar_novamente.verificar_clique(pos_mouse):
+                            self.estado_jogo = "jogando"
+                            self.inicializar_jogo()
+                            return
+            return
+        
+        for evento in eventos:
+            if evento.type == pygame.KEYDOWN and evento.key == pygame.K_SPACE:
+                if self.estado_jogo == "jogando":
+                    self.estado_jogo = "pausado"
+                    self.logica_jogo.alternar_pausa()
+                    return
+                elif self.estado_jogo == "pausado":
+                    self.estado_jogo = "jogando"
+                    self.logica_jogo.alternar_pausa()
+                    return
 
     def atualizar(self):
-        if self.estado_jogo != "jogando":
+        if self.estado_jogo == "menu":
+            self.tela_inicial.atualizar()
+            return
+        
+        elif self.estado_jogo in ["game_over", "game_won"]:
+            if self.tela_fim_jogo:
+                self.tela_fim_jogo.atualizar()
+            return
+        
+        elif self.estado_jogo == "pausado":
+            # Quando pausado, não atualiza o jogo
             return
             
+        # Atualização durante o jogo
         teclas = pygame.key.get_pressed()
-        if teclas[pygame.K_LEFT]:
+        if teclas[pygame.K_LEFT] or teclas[pygame.K_a]:
             self.navio.mover("esquerda", self.largura)
-        if teclas[pygame.K_RIGHT]:
+        if teclas[pygame.K_RIGHT] or teclas[pygame.K_d]:
             self.navio.mover("direita", self.largura)
         
         for obj in self.coletaveis[:]:
@@ -90,13 +165,22 @@ class JogoTitanic:
         resultado = self.logica_jogo.atualizar()
         if resultado != "continuar":
             self.estado_jogo = resultado
+            self.tela_fim_jogo = TelaFimJogo(self.largura, self.altura, resultado)
       
     def renderizar(self):
-        # Desenha o fundo (imagem ou cor sólida)
+        if self.estado_jogo == "menu":
+            self.tela_inicial.desenhar(self.janela)
+            return
+        
+        elif self.estado_jogo in ["game_over", "game_won"]:
+            if self.tela_fim_jogo:
+                self.tela_fim_jogo.desenhar(self.janela)
+            return
+        
         if self.fundo:
             self.janela.blit(self.fundo, (0, 0))
         else:
-            self.janela.fill((0, 0, 100))  # Cor de fallback
+            self.janela.fill((0, 0, 100))
         
         # Desenha os outros elementos
         for obj in self.coletaveis:
@@ -109,31 +193,22 @@ class JogoTitanic:
         self.contador.desenhar(self.janela)
         self.logica_jogo.desenhar_timer(self.janela)
         
-        # Desenha mensagens de fim de jogo
-        if self.estado_jogo == "game_over":
-            self.desenhar_mensagem("GAME OVER", (255, 0, 0))
-        elif self.estado_jogo == "game_won":
-            self.desenhar_mensagem("VOCÊ VENCEU!", (0, 255, 0))
-            
+        # Desenha a mensagem de objetivo se ainda estiver ativa
+        if self.tela_objetivo and self.tela_objetivo.ainda_ativo():
+            self.tela_objetivo.desenhar(self.janela)
+        
+        # Se o jogo estiver pausado, mostra a tela de pausa
+        if self.estado_jogo == "pausado":
+            self.tela_pausa.desenhar(self.janela)
+        
         pygame.display.flip()
     
-    def desenhar_mensagem(self, texto, cor):
-        fonte = pygame.font.Font(None, 72)
-        superficie = fonte.render(texto, True, cor)
-        pos_x = self.largura // 2 - superficie.get_width() // 2
-        pos_y = self.altura // 2 - superficie.get_height() // 2
-        self.janela.blit(superficie, (pos_x, pos_y))
-
     def executar(self):
         while self.rodando:
             self.clock.tick(60)
             self.processar_eventos()
             self.atualizar()
             self.renderizar()
-            
-            if self.estado_jogo != "jogando":
-                pygame.time.delay(3000)
-                self.rodando = False
         
         self.contador.liberar_memoria()
         pygame.quit()

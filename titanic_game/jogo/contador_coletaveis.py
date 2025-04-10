@@ -10,7 +10,7 @@ class Score:
             "relogios": 0,
         }
         #Fonte do contador
-        self.fonte = pygame.font.SysFont('Arial', 20)
+        self.fonte = pygame.font.SysFont('Verdana', 16)
     
     def atualizar_contador(self, tipo_objeto):
         if tipo_objeto in self.coletaveis:
@@ -25,7 +25,7 @@ class Score:
             texto = f"{tipo}: {quantidade}"
             superficie_texto = self.fonte.render(texto, True, (255, 255, 255))
             tela.blit(superficie_texto, (10, posicao_y))
-            posicao_y += 25  # Espaçamento entre as linhas
+            posicao_y += 25
 
     def obter_contagem(self, tipo_objeto):
         #Retorna a contagem atual de um tipo específico de objeto
